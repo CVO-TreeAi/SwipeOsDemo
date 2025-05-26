@@ -85,13 +85,13 @@ print_success "npm configured"
 # Step 5: Clone SwipeOS repository
 print_status "${PACKAGE} Cloning SwipeOS repository..."
 cd ~
-if [ -d "SwipeOsTreeAI" ]; then
-    print_warning "SwipeOsTreeAI directory already exists. Updating..."
-    cd SwipeOsTreeAI
+if [ -d "SwipeOsDemo" ]; then
+    print_warning "SwipeOsDemo directory already exists. Updating..."
+    cd SwipeOsDemo
     git pull origin main
 else
-    git clone https://github.com/CVO-TreeAi/SwipeOsTreeAI.git
-    cd SwipeOsTreeAI
+    git clone https://github.com/CVO-TreeAi/SwipeOsDemo.git
+    cd SwipeOsDemo
 fi
 print_success "Repository cloned/updated"
 
@@ -109,7 +109,7 @@ cat > ~/start-swipeos.sh << 'EOF'
 echo "🚀 Starting SwipeOS..."
 
 # Navigate to project directory
-cd ~/SwipeOsTreeAI
+cd ~/SwipeOsDemo
 
 # Check if dependencies are installed
 if [ ! -d "node_modules" ]; then
@@ -147,8 +147,8 @@ echo "📱 SwipeOS Quick Commands:"
 echo ""
 echo "1. Start SwipeOS:     ~/start-swipeos.sh"
 echo "2. Open in browser:   termux-open-url http://localhost:3000"
-echo "3. Update SwipeOS:    cd ~/SwipeOsTreeAI && git pull && npm install"
-echo "4. View logs:         cd ~/SwipeOsTreeAI && npm run dev"
+echo "3. Update SwipeOS:    cd ~/SwipeOsDemo && git pull && npm install"
+echo "4. View logs:         cd ~/SwipeOsDemo && npm run dev"
 echo "5. Stop server:       Ctrl+C"
 echo ""
 echo "🌐 Network URLs (share with other devices):"
@@ -168,7 +168,7 @@ cat >> ~/.bashrc << 'EOF'
 alias swipeos='~/start-swipeos.sh'
 alias swipe='~/start-swipeos.sh'
 alias swipeos-help='~/swipeos-commands.sh'
-alias swipeos-update='cd ~/SwipeOsTreeAI && git pull && npm install'
+alias swipeos-update='cd ~/SwipeOsDemo && git pull && npm install'
 alias swipeos-open='termux-open-url http://localhost:3000'
 EOF
 

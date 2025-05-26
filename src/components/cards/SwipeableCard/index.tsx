@@ -239,15 +239,33 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
           {isSelected && (
             <div className="absolute inset-0 pointer-events-none">
               {getAction('up') && (
-                <div className="absolute top-2 left-1/2 -translate-x-1/2">
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 flex flex-col items-center">
                   <div className={`
                     w-8 h-1 rounded-full transition-all duration-200
                     ${swipeDirection === 'up' ? 'bg-white' : 'bg-gray-300/50 dark:bg-gray-600/50'}
                   `} />
+                  <span className={`
+                    text-xs font-medium mt-1 px-2 py-0.5 rounded-full transition-all duration-200
+                    ${swipeDirection === 'up' 
+                      ? 'bg-white/20 text-white' 
+                      : 'bg-gray-900/20 text-gray-600 dark:bg-white/10 dark:text-gray-400'
+                    }
+                  `}>
+                    {getAction('up')?.label}
+                  </span>
                 </div>
               )}
               {getAction('down') && (
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                  <span className={`
+                    text-xs font-medium mb-1 px-2 py-0.5 rounded-full transition-all duration-200
+                    ${swipeDirection === 'down' 
+                      ? 'bg-white/20 text-white' 
+                      : 'bg-gray-900/20 text-gray-600 dark:bg-white/10 dark:text-gray-400'
+                    }
+                  `}>
+                    {getAction('down')?.label}
+                  </span>
                   <div className={`
                     w-8 h-1 rounded-full transition-all duration-200
                     ${swipeDirection === 'down' ? 'bg-white' : 'bg-gray-300/50 dark:bg-gray-600/50'}
@@ -255,15 +273,33 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
                 </div>
               )}
               {getAction('left') && (
-                <div className="absolute left-2 top-1/2 -translate-y-1/2">
+                <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center">
                   <div className={`
                     w-1 h-8 rounded-full transition-all duration-200
                     ${swipeDirection === 'left' ? 'bg-white' : 'bg-gray-300/50 dark:bg-gray-600/50'}
                   `} />
+                  <span className={`
+                    text-xs font-medium ml-1 px-2 py-0.5 rounded-full transition-all duration-200 whitespace-nowrap
+                    ${swipeDirection === 'left' 
+                      ? 'bg-white/20 text-white' 
+                      : 'bg-gray-900/20 text-gray-600 dark:bg-white/10 dark:text-gray-400'
+                    }
+                  `}>
+                    {getAction('left')?.label}
+                  </span>
                 </div>
               )}
               {getAction('right') && (
-                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
+                  <span className={`
+                    text-xs font-medium mr-1 px-2 py-0.5 rounded-full transition-all duration-200 whitespace-nowrap
+                    ${swipeDirection === 'right' 
+                      ? 'bg-white/20 text-white' 
+                      : 'bg-gray-900/20 text-gray-600 dark:bg-white/10 dark:text-gray-400'
+                    }
+                  `}>
+                    {getAction('right')?.label}
+                  </span>
                   <div className={`
                     w-1 h-8 rounded-full transition-all duration-200
                     ${swipeDirection === 'right' ? 'bg-white' : 'bg-gray-300/50 dark:bg-gray-600/50'}

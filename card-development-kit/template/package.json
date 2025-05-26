@@ -1,0 +1,30 @@
+{
+  "name": "@swipeos/template-card",
+  "version": "1.0.0",
+  "description": "Template card for SwipeOS development",
+  "main": "components/index.tsx",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint . --ext .ts,.tsx",
+    "validate": "node scripts/validate.js"
+  },
+  "keywords": ["swipeos", "card", "template"],
+  "author": "SwipeOS Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^5.0.0"
+  },
+  "swipeosCard": {
+    "configFile": "config.json",
+    "entryPoint": "components/index.tsx",
+    "popupsEntry": "popups/index.tsx",
+    "functionsEntry": "functions/index.ts"
+  }
+} 

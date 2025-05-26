@@ -1,0 +1,50 @@
+{
+  "id": "proposals",
+  "name": "Proposals",
+  "version": "1.0.0",
+  "description": "A Proposals card for SwipeOS",
+  "author": "SwipeOS Developer",
+  "category": "Productivity",
+  "tags": ["Productivity", "example"],
+  "theme": {
+    "primary": "#3B82F6",
+    "secondary": "#1E40AF",
+    "accent": "#60A5FA",
+    "background": "#F8FAFC",
+    "backgroundDark": "#1E293B",
+    "text": "#1F2937",
+    "textDark": "#F9FAFB"
+  },
+  "swipeActions": {
+    "up": {
+      "label": "Create",
+      "icon": "Plus",
+      "description": "Create new item"
+    },
+    "down": {
+      "label": "Settings",
+      "icon": "Settings",
+      "description": "Open settings"
+    },
+    "left": {
+      "label": "Directory",
+      "icon": "Clock",
+      "description": "View history"
+    },
+    "right": {
+      "label": "Drafts",
+      "icon": "Drafts2",
+      "description": "Drafts content"
+    }
+  },
+  "permissions": ["storage"],
+  "dependencies": {
+    "external": [],
+    "internal": ["@swipeos/core", "@swipeos/ui"]
+  },
+  "dimensions": {
+    "width": 320,
+    "height": 200,
+    "borderRadius": 16
+  }
+} 
