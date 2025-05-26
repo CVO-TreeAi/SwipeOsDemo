@@ -1,0 +1,9 @@
+
+## 6. Animation & Interactions
+
+We'll use Framer Motion for fluid gestures and animations:
+
+### Swipe Handling
+
+The BaseCard component already implements basic swipe detection. For more complex interactions:
+
