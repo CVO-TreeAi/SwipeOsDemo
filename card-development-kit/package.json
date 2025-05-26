@@ -1,0 +1,52 @@
+{
+  "name": "@swipeos/card-development-kit",
+  "version": "1.0.0",
+  "description": "SwipeOS Card Development Kit - Tools and templates for creating SwipeOS cards",
+  "main": "index.js",
+  "scripts": {
+    "create": "node tools/create-card.js",
+    "validate": "node tools/validate-card.js",
+    "test": "node tools/test-card.js",
+    "update": "node tools/update-card.js",
+    "package": "node tools/package-card.js",
+    "install-card": "node tools/card-installer.js"
+  },
+  "bin": {
+    "swipeos-create-card": "./tools/create-card.js",
+    "swipeos-validate-card": "./tools/validate-card.js",
+    "swipeos-test-card": "./tools/test-card.js",
+    "swipeos-update-card": "./tools/update-card.js",
+    "swipeos-package-card": "./tools/package-card.js",
+    "swipeos-install-card": "./tools/card-installer.js"
+  },
+  "keywords": [
+    "swipeos",
+    "card",
+    "development",
+    "kit",
+    "sdk",
+    "wallet"
+  ],
+  "author": "SwipeOS Team",
+  "license": "MIT",
+  "dependencies": {
+    "archiver": "^6.0.1",
+    "unzipper": "^0.10.14"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.1",
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CVO-TreeAi/SwipeOsDemo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CVO-TreeAi/SwipeOsDemo/issues"
+  },
+  "homepage": "https://github.com/CVO-TreeAi/SwipeOsDemo#readme"
+} 
