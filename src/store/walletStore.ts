@@ -62,11 +62,11 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   reorderCards: (cards: CardData[]) => {
     set({ cards });
     
-    // Update positions in database
-    cards.forEach(async (card, index) => {
+    // Update positions in database - positions are already set in the card objects
+    cards.forEach(async (card) => {
       await supabase
         .from('user_cards')
-        .update({ position: index })
+        .update({ position: card.position })
         .eq('id', card.id);
     });
   },

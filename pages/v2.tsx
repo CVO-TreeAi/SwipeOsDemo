@@ -15,126 +15,66 @@ import { AiAssistantCard } from '../src/components/cards/AiAssistantCard';
 
 // Import new cards
 import { LoyaltyCard } from '../src/components/cards/digital/LoyaltyCard';
-import { GiftCard } from '../src/components/cards/digital/GiftCard';
-import { MembershipCard } from '../src/components/cards/digital/MembershipCard';
 
 const V2Page: NextPage = () => {
   const [theme, setTheme] = useState<Theme>('dark');
   const { cards, addCard } = useWalletStore();
 
-  // Sample data - in production this would come from Supabase
+  // Clean sample data - just 4 essential cards
   const sampleCards: CardData[] = [
     {
       id: '1',
       type: 'profile',
-      position: 0,
+      position: 1,
       component: (
         <ProfileCard
           theme={theme}
-          name="John Doe"
-          company="TreeAI Services"
-          avatarUrl="https://api.dicebear.com/7.x/avataaars/svg?seed=John"
-          completionPercentage={85}
+          name="Alex Chen"
+          company="TreeAI"
+          avatarUrl="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex"
+          completionPercentage={92}
         />
       ),
     },
     {
       id: '2',
       type: 'loyalty',
-      position: 1,
+      position: 2,
       component: (
         <LoyaltyCard
           theme={theme}
-          storeName="Starbucks"
-          memberNumber="4532-1234-5678"
-          points={1250}
-          pointsToNextReward={1500}
-          barcode="123456789012"
-          backgroundColor="#00704A"
+          storeName="Coffee & Co"
+          memberNumber="CC-2024-8901"
+          points={850}
+          pointsToNextReward={1000}
+          barcode="850123456789"
+          backgroundColor="#8B4513"
         />
       ),
     },
     {
       id: '3',
-      type: 'gift_card',
-      position: 2,
-      component: (
-        <GiftCard
-          theme={theme}
-          storeName="Amazon"
-          balance={75.50}
-          originalAmount={100}
-          cardNumber="4532123456789012"
-          pin="1234"
-          expiryDate="12/2025"
-          backgroundColor="#FF9900"
-          patternType="geometric"
-        />
-      ),
-    },
-    {
-      id: '4',
-      type: 'membership',
-      position: 3,
-      component: (
-        <MembershipCard
-          theme={theme}
-          organizationName="Planet Fitness"
-          memberName="John Doe"
-          memberId="PF-2024-1234"
-          memberType="Premium"
-          validUntil="Dec 2024"
-          benefits={[
-            "Unlimited gym access",
-            "Free guest passes",
-            "HydroMassage",
-            "Tanning",
-            "Free T-shirt"
-          ]}
-          backgroundColor="#7B2FF7"
-        />
-      ),
-    },
-    {
-      id: '5',
       type: 'business_id',
-      position: 4,
+      position: 3,
       component: (
         <BusinessIdCard
           theme={theme}
-          companyName="TreeAI Services"
+          companyName="TreeAI"
           logoUrl="https://api.dicebear.com/7.x/identicon/svg?seed=TreeAI"
-          email="contact@treeai.com"
+          email="hello@treeai.com"
           phone="+1 (555) 123-4567"
         />
       ),
     },
     {
-      id: '6',
-      type: 'settings',
-      position: 5,
-      component: (
-        <SettingsCard
-          theme={theme}
-          settings={{
-            notifications: true,
-            biometric: false,
-            autoSync: true,
-            offlineMode: false,
-          }}
-          onSettingChange={(key, value) => console.log(`${key}: ${value}`)}
-        />
-      ),
-    },
-    {
-      id: '7',
+      id: '4',
       type: 'ai_assistant',
-      position: 6,
+      position: 4,
       component: (
         <AiAssistantCard
           theme={theme}
-          unreadCount={3}
-          lastMessage="How can I help you today?"
+          unreadCount={0}
+          lastMessage="Ready to help with your tree services!"
           onOpen={() => console.log('Opening AI chat')}
         />
       ),
@@ -146,7 +86,7 @@ const V2Page: NextPage = () => {
     if (cards.length === 0) {
       sampleCards.forEach(card => addCard(card));
     }
-  }, []);
+  }, [cards.length, addCard]);
 
   // Prevent overscroll bounce on iOS
   useEffect(() => {
@@ -166,7 +106,7 @@ const V2Page: NextPage = () => {
         <meta name="theme-color" content={theme === 'dark' ? '#111827' : '#F9FAFB'} />
       </Head>
       
-      <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className={`fixed inset-0 safe-area-top safe-area-bottom safe-area-left safe-area-right ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
         {/* Theme Toggle */}
         <motion.button
           className={`fixed top-16 right-6 z-50 p-3 rounded-full backdrop-blur-md ${

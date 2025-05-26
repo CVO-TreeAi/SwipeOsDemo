@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Theme, SwipeDirection } from '../cards/BaseCard/types';
 import { CardStack, CardData } from './CardStack';
 import { useWalletStore } from '../../store/walletStore';
+import { useGestures } from '../../shared/hooks/useGestures';
 import { supabase } from '../../lib/supabase';
 
 interface WalletContainerProps {
@@ -47,6 +48,30 @@ export const WalletContainer: React.FC<WalletContainerProps> = ({ theme, userId 
     setShowAddModal(true);
   }, []);
 
+  // Global gesture handling for the container
+  const gestureHandlers = useGestures({
+    onSwipeUp: () => {
+      // Quick action - could open search or add card
+      setShowAddModal(true);
+    },
+    onSwipeDown: () => {
+      // Close any open modals
+      setShowAddModal(false);
+      setShowMenu(false);
+    },
+    onSwipeLeft: () => {
+      // Could navigate to settings or previous view
+      setShowMenu(!showMenu);
+    },
+    onSwipeRight: () => {
+      // Could navigate to next view or close menu
+      setShowMenu(false);
+    },
+  }, {
+    threshold: 100,
+    preventScroll: false, // Allow normal scrolling in container
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-b from-purple-900/20 to-black">
@@ -67,11 +92,14 @@ export const WalletContainer: React.FC<WalletContainerProps> = ({ theme, userId 
   }
 
   return (
-    <div className={`relative w-full h-screen overflow-hidden ${
-      theme === 'dark' 
-        ? 'bg-gradient-to-b from-gray-900 via-purple-900/10 to-black' 
-        : 'bg-gradient-to-b from-gray-50 via-purple-100 to-white'
-    }`}>
+    <div 
+      className={`relative w-full h-screen overflow-hidden ${
+        theme === 'dark' 
+          ? 'bg-gradient-to-b from-gray-900 via-purple-900/10 to-black' 
+          : 'bg-gradient-to-b from-gray-50 via-purple-100 to-white'
+      }`}
+      {...gestureHandlers}
+    >
       {/* Status Bar Overlay - for iPhone */}
       <div className="absolute top-0 left-0 right-0 h-12 z-50 bg-gradient-to-b from-black/20 to-transparent" />
 
@@ -95,7 +123,7 @@ export const WalletContainer: React.FC<WalletContainerProps> = ({ theme, userId 
             animate={{ x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            {cards.length} {cards.length === 1 ? 'card' : 'cards'} • Swipe up to archive
+            {cards.length} {cards.length === 1 ? 'card' : 'cards'} • 100 slots • Scroll to navigate
           </motion.p>
         </div>
       </motion.div>
