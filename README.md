@@ -1,15 +1,32 @@
-# SwipeOS Wallet - TreeAI Edition
+# SwipeOS Wallet - TreeAI Edition (V3 Alpha)
 
-A modern, swipe-based wallet interface built with Next.js, TypeScript, Tailwind CSS, and Framer Motion for TreeAI services.
+A production-ready infinite scroll wallet interface with 3D card animations, built with Next.js, TypeScript, Tailwind CSS, and Framer Motion for TreeAI services.
 
-## 🚀 Features
+> **🚀 V3 Alpha Release**: This branch contains the complete infinite scroll wallet implementation with production-ready template system.
 
+## 🚀 V3 Alpha Features
+
+### ✅ Infinite Scroll System
+- **Seamless looping**: Cards repeat infinitely without boundaries
+- **60fps performance**: Hardware-accelerated scrolling
+- **Touch/trackpad support**: Native scroll behavior with gesture recognition
+- **Position tracking**: Automatic card selection based on scroll position
+
+### ✅ 3D Card Flip Animations
+- **Double-tap to flip**: Intuitive gesture for revealing card backs
+- **Custom back content**: Unique information for each card type
+- **Smooth transitions**: CSS3 transforms with hardware acceleration
+
+### ✅ Production-Ready Template System
+- **Reusable components**: Fully configurable InfiniteScrollWallet template
+- **TypeScript support**: Complete type safety with interfaces
+- **Event handling**: Comprehensive callback system for interactions
+- **Documentation**: Detailed implementation guide and examples
+
+### ✅ Legacy Features (V1/V2)
 - **4 Interactive Cards**: Profile, Business ID, Settings, and AI Assistant
-- **Swipe Gestures**: Left/right navigation with 100px threshold
-- **Keyboard Navigation**: Arrow key support for accessibility
 - **Theme Support**: Light and dark mode toggle
-- **Responsive Design**: 3:2 aspect ratio cards (300×200px)
-- **Smooth Animations**: Framer Motion powered transitions
+- **Responsive Design**: Adapts to viewport dimensions
 - **TypeScript**: Fully typed for production readiness
 
 ## 📁 Project Structure
@@ -66,13 +83,32 @@ TreeAi/
 
 5. **Open in browser**:
    ```
-   http://localhost:3002
+   http://localhost:3000  (or 3001/3002 if port is in use)
    ```
 
-6. **Optional: Use Setup Page**:
-   Visit `http://localhost:3002/setup` to insert sample data via the API
+6. **Access V3 Alpha Wallet**:
+   ```
+   http://localhost:3000/v3
+   ```
 
-## 🎮 Usage
+7. **Optional: Use Setup Page**:
+   Visit `http://localhost:3000/setup` to insert sample data via the API
+
+## 🎮 V3 Alpha Usage
+
+### Infinite Scroll Navigation
+- **Scroll/Swipe**: Vertical scrolling through cards with infinite loop
+- **Double-tap**: Flip cards to reveal back content with stats/info
+- **Scroll indicators**: Right-side dots for quick navigation
+- **Auto-selection**: Cards automatically select based on scroll position
+
+### V3 Alpha Template System
+Access the new infinite scroll wallet at `/v3`:
+- **InfiniteScrollWallet**: Main template component
+- **WalletExample**: Complete usage example
+- **Custom configuration**: Fully configurable sizing, spacing, and behavior
+
+## 🎮 Legacy Usage (V1/V2)
 
 ### Navigation
 - **Swipe Left/Right**: Navigate between cards
@@ -138,6 +174,18 @@ npm run build
 npm start
 ```
 
+## 📚 V3 Alpha Documentation
+
+### Core Documentation Files
+- **`INFINITE_SCROLL_WALLET_TEMPLATE.md`**: Complete template documentation with examples
+- **`V3_ALPHA_SUMMARY.md`**: Technical implementation details and performance metrics
+- **`V3_WALLET_IMPLEMENTATION.md`**: Development notes and implementation guide
+
+### Template Files
+- **`src/components/wallet/InfiniteScrollWallet.tsx`**: Main template component (269 lines)
+- **`src/components/wallet/examples/WalletExample.tsx`**: Usage example (170 lines)
+- **`pages/v3.tsx`**: Production implementation (112 lines)
+
 ## 🗄️ Backend Integration
 
 The application now includes full Supabase integration:
@@ -159,15 +207,33 @@ The application now includes full Supabase integration:
 - ✅ Fallback to static data if database unavailable
 - ✅ TypeScript interfaces for all database operations
 
-## 🎯 Next Steps
+## 🎯 V3 Alpha Status
 
-- [ ] Add user authentication with Supabase Auth
-- [ ] Implement actual AI chat functionality
-- [ ] Add more card types and customization options
-- [ ] Progressive Web App (PWA) features
+### ✅ Completed Features
+- [x] Infinite scroll with seamless looping
+- [x] 3D card flip animations with double-tap
+- [x] Production-ready template system
+- [x] Complete TypeScript support
+- [x] 60fps performance optimization
+- [x] Responsive design with theme support
+- [x] Comprehensive documentation and examples
+
+### 🔮 V4 Roadmap
+- [ ] Virtual scrolling for 500+ cards
+- [ ] Drag-and-drop card reordering
+- [ ] Advanced animation effects
+- [ ] Accessibility improvements
+- [ ] PWA integration with offline caching
+- [ ] User authentication with Supabase Auth
 - [ ] Unit tests with Jest/Vitest
-- [ ] Row Level Security (RLS) policies for multi-tenancy
+
+## 🏷️ Version Information
+
+- **Current Version**: V3 Alpha (3.0.0-alpha)
+- **Branch**: `alpha`
+- **Status**: Production-ready template
+- **Next Release**: V4 Beta (Q2 2025)
 
 ---
 
-Built with ❤️ for TreeAi Services
+Built with ❤️ for TreeAi Services | V3 Alpha Release
