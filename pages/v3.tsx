@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { SimpleCardStack, CardData } from '../src/components/wallet/SimpleCardStack';
+import { InfiniteScrollWallet, WalletCard, WalletConfig } from '../src/components/wallet/InfiniteScrollWallet';
 import { ProfileCard } from '../src/components/cards/ProfileCard';
 import { AiAssistantCard } from '../src/components/cards/AiAssistantCard';
 import { BusinessIdCard } from '../src/components/cards/BusinessIdCard';
@@ -12,7 +12,7 @@ export default function V3Page() {
   const router = useRouter();
 
   // Initialize demo cards directly
-  const cards: CardData[] = [
+  const cards: WalletCard[] = [
     {
       id: 'profile-1',
       type: 'profile',
@@ -76,22 +76,35 @@ export default function V3Page() {
     console.log(`Card ${cardId} swiped ${direction}`);
   };
 
+  const handleCardSelect = (card: WalletCard, index: number) => {
+    console.log(`Selected card: ${card.type} at index ${index}`);
+  };
+
+  // Configure the wallet
+  const config: WalletConfig = {
+    title: 'Digital Wallet V3 Alpha',
+    subtitle: `${cards.length} cards • Scroll to navigate • Double-tap to flip`,
+    cardHeight: 320,
+    cardGap: 32,
+    maxWidth: 'max-w-md',
+    showScrollIndicators: true,
+    showFooter: true,
+  };
+
   return (
-    <div className={`relative w-full h-screen overflow-hidden ${
-      theme === 'dark' 
-        ? 'bg-gradient-to-b from-gray-900 via-purple-900/10 to-black' 
-        : 'bg-gradient-to-b from-gray-50 via-purple-100 to-white'
-    }`}>
-      <SimpleCardStack
+    <div className="relative w-full h-screen overflow-hidden">
+      <InfiniteScrollWallet
         cards={cards}
+        config={config}
         theme={theme}
         onCardSwipe={handleCardSwipe}
+        onCardSelect={handleCardSelect}
       />
       
       {/* Version indicator */}
       <div className="absolute top-14 right-6 z-50">
         <div className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
-          v3.0
+          V3 Alpha
         </div>
       </div>
     </div>
