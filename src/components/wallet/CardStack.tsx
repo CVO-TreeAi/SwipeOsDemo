@@ -1,6 +1,25 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Theme } from '../cards/BaseCard/types';
-import { Wallet } from 'lucide-react';
+import { SwipeableCard, SwipeAction } from '../cards/SwipeableCard';
+import { useRouter } from 'next/router';
+import { 
+  Mail, 
+  Plus, 
+  Inbox, 
+  Edit, 
+  FileText,
+  User,
+  Settings,
+  CreditCard,
+  MessageCircle,
+  Building,
+  Phone,
+  AtSign,
+  Camera,
+  Share2,
+  Archive,
+  Trash2
+} from 'lucide-react';
 
 export interface CardData {
   id: string;
@@ -17,18 +36,195 @@ interface CardStackProps {
   maxCards?: number;
 }
 
-// Gradient mappings for different card types
-const cardGradients: Record<string, string> = {
-  'profile': 'bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800',
-  'loyalty': 'bg-gradient-to-br from-amber-600 via-orange-600 to-red-700',
-  'gift_card': 'bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-600',
-  'membership': 'bg-gradient-to-br from-green-500 via-emerald-500 to-teal-700',
-  'business_id': 'bg-gradient-to-br from-slate-600 via-gray-700 to-zinc-800',
-  'businessid': 'bg-gradient-to-br from-slate-600 via-gray-700 to-zinc-800',
-  'settings': 'bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800',
-  'ai_assistant': 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-600',
-  'ai': 'bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-600',
-  'default': 'bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800'
+// Card type specific swipe actions
+const getCardSwipeActions = (type: string, router: any): SwipeAction[] => {
+  switch (type.toLowerCase()) {
+    case 'profile':
+      return [
+        {
+          direction: 'up',
+          label: 'Edit Profile',
+          icon: <Edit size={16} />,
+          action: () => router.push('/profile/edit')
+        },
+        {
+          direction: 'right',
+          label: 'Share',
+          icon: <Share2 size={16} />,
+          action: () => router.push('/profile/share')
+        },
+        {
+          direction: 'down',
+          label: 'View Details',
+          icon: <User size={16} />,
+          action: () => router.push('/profile')
+        },
+        {
+          direction: 'left',
+          label: 'Settings',
+          icon: <Settings size={16} />,
+          action: () => router.push('/settings')
+        }
+      ];
+    
+    case 'email':
+      return [
+        {
+          direction: 'up',
+          label: 'New Email',
+          icon: <Plus size={16} />,
+          action: () => router.push('/email/compose')
+        },
+        {
+          direction: 'right',
+          label: 'Inbox',
+          icon: <Inbox size={16} />,
+          action: () => router.push('/email/inbox')
+        },
+        {
+          direction: 'down',
+          label: 'Personal',
+          icon: <Mail size={16} />,
+          action: () => router.push('/email/personal')
+        },
+        {
+          direction: 'left',
+          label: 'Drafts',
+          icon: <FileText size={16} />,
+          action: () => router.push('/email/drafts')
+        }
+      ];
+    
+    case 'ai_assistant':
+    case 'ai':
+      return [
+        {
+          direction: 'up',
+          label: 'New Chat',
+          icon: <MessageCircle size={16} />,
+          action: () => router.push('/ai/chat')
+        },
+        {
+          direction: 'right',
+          label: 'History',
+          icon: <Archive size={16} />,
+          action: () => router.push('/ai/history')
+        }
+      ];
+    
+    case 'business_id':
+    case 'businessid':
+      return [
+        {
+          direction: 'up',
+          label: 'Edit Info',
+          icon: <Edit size={16} />,
+          action: () => router.push('/business/edit')
+        },
+        {
+          direction: 'right',
+          label: 'Contact',
+          icon: <Phone size={16} />,
+          action: () => router.push('/business/contact')
+        },
+        {
+          direction: 'down',
+          label: 'View Details',
+          icon: <Building size={16} />,
+          action: () => router.push('/business')
+        }
+      ];
+    
+    case 'settings':
+      return [
+        {
+          direction: 'up',
+          label: 'Preferences',
+          icon: <Settings size={16} />,
+          action: () => router.push('/settings/preferences')
+        },
+        {
+          direction: 'right',
+          label: 'Account',
+          icon: <User size={16} />,
+          action: () => router.push('/settings/account')
+        }
+      ];
+    
+    default:
+      return [
+        {
+          direction: 'up',
+          label: 'Open',
+          icon: <CreditCard size={16} />,
+          action: () => router.push(`/cards/${type}`)
+        }
+      ];
+  }
+};
+
+// Back content for different card types
+const getCardBackContent = (type: string, theme: Theme) => {
+  const baseClasses = `p-6 h-full flex flex-col ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`;
+  
+  switch (type.toLowerCase()) {
+    case 'profile':
+      return (
+        <div className={baseClasses}>
+          <h3 className="text-lg font-bold mb-4">Profile Stats</h3>
+          <div className="space-y-3 flex-1">
+            <div className="flex justify-between">
+              <span className="text-sm opacity-70">Connections</span>
+              <span className="font-medium">245</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm opacity-70">Profile Views</span>
+              <span className="font-medium">1,234</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm opacity-70">Completion</span>
+              <span className="font-medium">75%</span>
+            </div>
+          </div>
+          <div className="text-xs opacity-50 mt-4">Last updated 2 hours ago</div>
+        </div>
+      );
+    
+    case 'ai_assistant':
+    case 'ai':
+      return (
+        <div className={baseClasses}>
+          <h3 className="text-lg font-bold mb-4">AI Assistant</h3>
+          <div className="space-y-3 flex-1">
+            <div className="flex justify-between">
+              <span className="text-sm opacity-70">Messages Today</span>
+              <span className="font-medium">42</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm opacity-70">Tasks Completed</span>
+              <span className="font-medium">8</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm opacity-70">Avg Response</span>
+              <span className="font-medium">1.2s</span>
+            </div>
+          </div>
+          <div className="text-xs opacity-50 mt-4">Always here to help</div>
+        </div>
+      );
+    
+    default:
+      return (
+        <div className={baseClasses}>
+          <h3 className="text-lg font-bold mb-4 capitalize">{type.replace('_', ' ')} Info</h3>
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-sm opacity-70 text-center">
+              Double tap to flip back
+            </p>
+          </div>
+        </div>
+      );
+  }
 };
 
 export const CardStack: React.FC<CardStackProps> = ({
@@ -40,229 +236,106 @@ export const CardStack: React.FC<CardStackProps> = ({
 }) => {
   const [selectedCard, setSelectedCard] = useState<number>(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const isScrollingRef = useRef(false);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const router = useRouter();
 
   // Sort cards by position
   const sortedCards = [...cards].sort((a, b) => a.position - b.position);
-  
-  // Create infinite scroll by tripling the cards array
-  const infiniteCards = [...sortedCards, ...sortedCards, ...sortedCards];
-  const totalCards = sortedCards.length;
 
-  const handleCardSelect = useCallback((cardIndex: number) => {
-    const actualIndex = cardIndex % totalCards;
-    setSelectedCard(actualIndex);
-  }, [totalCards]);
-
-  // Smooth scroll handling with human-friendly physics
   const handleScroll = useCallback(() => {
-    if (scrollContainerRef.current && !isScrollingRef.current) {
+    if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      const cardHeight = 320; // Slightly larger for better spacing
+      const cardHeight = container.firstElementChild?.clientHeight || 400;
       const scrollTop = container.scrollTop;
-      
-      // Clear existing timeout
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-      
-      // Debounce scroll to prevent rapid updates
-      scrollTimeoutRef.current = setTimeout(() => {
-        const centerIndex = Math.round(scrollTop / cardHeight);
-        const actualIndex = centerIndex % totalCards;
-        setSelectedCard(actualIndex);
-
-        // Check if we need to reset scroll position for infinite effect
-        const maxScroll = totalCards * cardHeight;
-
-        if (scrollTop >= maxScroll * 2) {
-          // If we're at the end of the third set, jump back to the second set
-          isScrollingRef.current = true;
-          container.scrollTop = scrollTop - maxScroll;
-          setTimeout(() => {
-            isScrollingRef.current = false;
-          }, 50);
-        } else if (scrollTop <= 0) {
-          // If we're at the beginning of the first set, jump to the second set
-          isScrollingRef.current = true;
-          container.scrollTop = scrollTop + maxScroll;
-          setTimeout(() => {
-            isScrollingRef.current = false;
-          }, 50);
-        }
-      }, 100); // 100ms debounce for smoother experience
+      const centerIndex = Math.round(scrollTop / (cardHeight + 32)); // 32px gap
+      setSelectedCard(Math.min(Math.max(0, centerIndex), sortedCards.length - 1));
     }
-  }, [totalCards]);
+  }, [sortedCards.length]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (container) {
-      // Start in the middle set of cards
-      const cardHeight = 320;
-      container.scrollTop = totalCards * cardHeight + (selectedCard * cardHeight);
-      
-      // Add passive scroll listener for better performance
       container.addEventListener('scroll', handleScroll, { passive: true });
-      return () => {
-        container.removeEventListener('scroll', handleScroll);
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
-      };
+      return () => container.removeEventListener('scroll', handleScroll);
     }
-  }, [totalCards, selectedCard, handleScroll]);
-
-  const getCardGradient = (type: string) => {
-    return cardGradients[type.toLowerCase()] || cardGradients.default;
-  };
+  }, [handleScroll]);
 
   const scrollToCard = useCallback((index: number) => {
     if (scrollContainerRef.current) {
-      const cardHeight = 320;
-      const targetScroll = (totalCards + index) * cardHeight;
+      const container = scrollContainerRef.current;
+      const cardHeight = container.firstElementChild?.clientHeight || 400;
+      const targetScroll = index * (cardHeight + 32); // 32px gap
       
-      scrollContainerRef.current.scrollTo({
+      container.scrollTo({
         top: targetScroll,
         behavior: 'smooth'
       });
     }
-  }, [totalCards]);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-6 md:mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 md:mb-4">Digital Wallet</h1>
-          <p className="text-gray-300 text-base md:text-lg">
-            {totalCards} {totalCards === 1 ? 'card' : 'cards'} • Scroll to navigate
-          </p>
-        </div>
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="text-center mb-6 px-4">
+        <h1 className="text-4xl font-bold text-white mb-2">Digital Wallet</h1>
+        <p className="text-gray-300">
+          {sortedCards.length} cards • Scroll to navigate
+        </p>
+      </div>
 
-        {/* Scrollable Cards Container */}
-        <div className="relative flex justify-center">
-          <div 
-            ref={scrollContainerRef}
-            className="h-[500px] md:h-[600px] overflow-y-auto scrollbar-hide space-y-8 px-4 py-12"
-            style={{ 
-              scrollSnapType: 'y proximity', // Changed from mandatory for smoother scrolling
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-              WebkitOverflowScrolling: 'touch',
-              scrollBehavior: 'smooth'
-            }}
-          >
-            {infiniteCards.map((card, index) => {
-              const actualIndex = index % totalCards;
-              const isSelected = selectedCard === actualIndex;
-              const distanceFromSelected = Math.abs(selectedCard - actualIndex);
-              
-              return (
-                <div
-                  key={`${card.id}-${Math.floor(index / totalCards)}`}
-                  className="flex justify-center"
-                  style={{ scrollSnapAlign: 'center' }}
-                >
-                  <div
-                    className={`
-                      relative w-full max-w-sm h-64 md:h-72 rounded-2xl cursor-pointer transition-all duration-500 ease-out transform
-                      ${getCardGradient(card.type)}
-                      ${isSelected 
-                        ? 'scale-105 shadow-2xl z-20 ring-2 ring-white/20' 
-                        : 'hover:scale-102 shadow-lg hover:shadow-xl'
-                      }
-                      backdrop-blur-sm border border-white/20
-                    `}
-                    style={{
-                      transform: isSelected 
-                        ? 'translateX(-8px) scale(1.05)' 
-                        : `translateX(${distanceFromSelected * 4}px) scale(${1 - distanceFromSelected * 0.02})`,
-                      zIndex: isSelected ? 20 : 10 - distanceFromSelected,
-                      opacity: isSelected ? 1 : Math.max(0.6, 1 - distanceFromSelected * 0.1)
-                    }}
-                    onClick={() => {
-                      handleCardSelect(index);
-                      scrollToCard(actualIndex);
-                    }}
-                  >
-                    {/* Card Background Pattern */}
-                    <div className="absolute inset-0 rounded-2xl overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
-                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full transform -translate-x-12 translate-y-12"></div>
-                    </div>
-
-                    {/* Card Content */}
-                    <div className="relative z-10 p-6 h-full flex flex-col">
-                      {/* Header */}
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <p className="text-sm font-medium text-white/90 capitalize">
-                            {card.type.replace('_', ' ')} Card
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Wallet size={16} className="text-white/70" />
-                            <span className="text-xs text-white/60">TreeAI Wallet</span>
-                          </div>
-                        </div>
-                        <div className="w-10 h-6 bg-white/20 rounded flex items-center justify-center">
-                          <div className="w-5 h-3 bg-white/40 rounded-sm"></div>
-                        </div>
-                      </div>
-
-                      {/* Main Content Area - Render the card component */}
-                      <div className="flex-1 overflow-hidden">
-                        <div className="transform scale-[0.85] origin-top-left">
-                          {card.component}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Selection Indicator */}
-                    {isSelected && (
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center shadow-lg">
-                        <div className="w-3 h-3 bg-white rounded-full"></div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Scroll Indicator */}
-          <div className="absolute right-0 md:right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-3">
-            {sortedCards.map((_, index) => (
-              <button
-                key={index}
-                className={`
-                  w-2 h-8 rounded-full transition-all duration-300 ease-out
-                  ${selectedCard === index 
-                    ? 'bg-white scale-125 shadow-lg' 
-                    : 'bg-white/30 hover:bg-white/50 hover:scale-110'
-                  }
-                `}
-                onClick={() => {
-                  setSelectedCard(index);
-                  scrollToCard(index);
-                }}
-                aria-label={`Go to card ${index + 1}`}
-              />
+      {/* Cards Container */}
+      <div className="flex-1 relative">
+        <div 
+          ref={scrollContainerRef}
+          className="h-full overflow-y-auto scrollbar-hide px-8 pb-8"
+          style={{ 
+            scrollSnapType: 'y mandatory',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
+          <div className="space-y-8">
+            {sortedCards.map((card, index) => (
+              <div
+                key={card.id}
+                className="h-[400px] scroll-snap-align-center"
+                style={{ scrollSnapAlign: 'center' }}
+              >
+                <SwipeableCard
+                  id={card.id}
+                  type={card.type}
+                  theme={theme}
+                  frontContent={card.component}
+                  backContent={getCardBackContent(card.type, theme)}
+                  swipeActions={getCardSwipeActions(card.type, router)}
+                  onSwipeComplete={(direction) => onCardSwipe?.(card.id, direction)}
+                  className={`
+                    transition-all duration-300
+                    ${selectedCard === index 
+                      ? 'scale-100 opacity-100' 
+                      : 'scale-95 opacity-60'
+                    }
+                  `}
+                />
+              </div>
             ))}
           </div>
         </div>
 
-        {/* Selected Card Info */}
-        <div className="mt-6 md:mt-8 text-center">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 max-w-md mx-auto border border-white/20">
-            <h3 className="text-white text-lg font-semibold mb-2">Selected Card</h3>
-            <p className="text-gray-300 capitalize">
-              {sortedCards[selectedCard]?.type.replace('_', ' ')} Card
-            </p>
-            <p className="text-white/80 text-sm mt-1">
-              Card {selectedCard + 1} of {totalCards}
-            </p>
-          </div>
+        {/* Scroll Indicators */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+          {sortedCards.map((_, index) => (
+            <button
+              key={index}
+              className={`
+                w-2 h-2 rounded-full transition-all duration-300
+                ${selectedCard === index 
+                  ? 'bg-white w-3 h-8' 
+                  : 'bg-white/30 hover:bg-white/50'
+                }
+              `}
+              onClick={() => scrollToCard(index)}
+              aria-label={`Go to card ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
     </div>

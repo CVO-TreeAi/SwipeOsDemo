@@ -9,6 +9,7 @@ interface WalletState {
   
   // Actions
   fetchCards: (userId: string) => Promise<void>;
+  setCards: (cards: CardData[]) => void;
   addCard: (card: CardData) => void;
   removeCard: (cardId: string) => void;
   reorderCards: (cards: CardData[]) => void;
@@ -45,6 +46,10 @@ export const useWalletStore = create<WalletState>((set, get) => ({
     } catch (error) {
       set({ error: (error as Error).message, isLoading: false });
     }
+  },
+
+  setCards: (cards: CardData[]) => {
+    set({ cards });
   },
 
   addCard: (card: CardData) => {
