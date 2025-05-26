@@ -7,6 +7,7 @@ export interface SwipeAction {
   label: string;
   icon?: React.ReactNode;
   action: () => void;
+  color?: string;
 }
 
 interface SwipeableCardProps {
@@ -17,7 +18,9 @@ interface SwipeableCardProps {
   backContent?: React.ReactNode;
   swipeActions?: SwipeAction[];
   onSwipeComplete?: (direction: SwipeDirection) => void;
+  onSwipe?: (cardId: string, direction: SwipeDirection) => void;
   className?: string;
+  isSelected?: boolean; // Only selected cards can be swiped
 }
 
 export const SwipeableCard: React.FC<SwipeableCardProps> = ({
@@ -28,11 +31,15 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
   backContent,
   swipeActions = [],
   onSwipeComplete,
+  onSwipe,
   className = '',
+  isSelected = false,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<SwipeDirection | null>(null);
+  const [swipeProgress, setSwipeProgress] = useState(0);
   const [lastTap, setLastTap] = useState(0);
+  const [isSwipeComplete, setIsSwipeComplete] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Get available actions for each direction
@@ -41,43 +48,74 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
   };
 
   const handleDrag = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    // Only allow swiping if this card is selected
+    if (!isSelected) return;
+    
     const { offset } = info;
-    const threshold = 0.25; // 25% of card dimension
     
     if (!cardRef.current) return;
     
     const cardWidth = cardRef.current.offsetWidth;
     const cardHeight = cardRef.current.offsetHeight;
     
-    // Determine swipe direction based on offset
+    // Determine swipe direction and progress
     let direction: SwipeDirection | null = null;
+    let progress = 0;
     
     if (Math.abs(offset.x) > Math.abs(offset.y)) {
       // Horizontal swipe
-      if (offset.x > cardWidth * threshold) {
+      if (offset.x > 0) {
         direction = 'right';
-      } else if (offset.x < -cardWidth * threshold) {
+        progress = Math.min(Math.abs(offset.x) / (cardWidth * 0.5), 1);
+      } else {
         direction = 'left';
+        progress = Math.min(Math.abs(offset.x) / (cardWidth * 0.5), 1);
       }
     } else {
       // Vertical swipe
-      if (offset.y > cardHeight * threshold) {
+      if (offset.y > 0) {
         direction = 'down';
-      } else if (offset.y < -cardHeight * threshold) {
+        progress = Math.min(Math.abs(offset.y) / (cardHeight * 0.5), 1);
+      } else {
         direction = 'up';
+        progress = Math.min(Math.abs(offset.y) / (cardHeight * 0.5), 1);
       }
     }
     
-    setSwipeDirection(direction);
+    // Only set direction if we have an action for it
+    if (direction && getAction(direction)) {
+      setSwipeDirection(direction);
+      setSwipeProgress(progress);
+    } else {
+      setSwipeDirection(null);
+      setSwipeProgress(0);
+    }
   };
 
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (swipeDirection && getAction(swipeDirection)) {
+    if (!isSelected) return;
+    
+    // Execute action if swipe is far enough (50% threshold)
+    if (swipeDirection && getAction(swipeDirection) && swipeProgress >= 0.5) {
+      setIsSwipeComplete(true);
+      
+      // Execute the action
       const action = getAction(swipeDirection);
       action?.action();
       onSwipeComplete?.(swipeDirection);
+      onSwipe?.(id, swipeDirection);
+      
+      // Reset after animation
+      setTimeout(() => {
+        setIsSwipeComplete(false);
+        setSwipeDirection(null);
+        setSwipeProgress(0);
+      }, 300);
+    } else {
+      // Reset if not far enough
+      setSwipeDirection(null);
+      setSwipeProgress(0);
     }
-    setSwipeDirection(null);
   };
 
   const handleTap = () => {
@@ -92,17 +130,21 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
     setLastTap(now);
   };
 
-  // Visual feedback for swipe direction
-  const getSwipeIndicatorPosition = () => {
+  // Get transform for the main card based on swipe
+  const getCardTransform = () => {
+    if (!swipeDirection || !isSelected) return {};
+    
+    const intensity = swipeProgress * 50; // Max 50px movement
+    
     switch (swipeDirection) {
       case 'up':
-        return { top: '10px', left: '50%', transform: 'translateX(-50%)' };
+        return { y: -intensity };
       case 'down':
-        return { bottom: '10px', left: '50%', transform: 'translateX(-50%)' };
+        return { y: intensity };
       case 'left':
-        return { left: '10px', top: '50%', transform: 'translateY(-50%)' };
+        return { x: -intensity };
       case 'right':
-        return { right: '10px', top: '50%', transform: 'translateY(-50%)' };
+        return { x: intensity };
       default:
         return {};
     }
@@ -125,18 +167,62 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
       className={`relative w-full h-full preserve-3d ${className}`}
       style={{ perspective: '1000px' }}
     >
+      {/* Legend Cards - Show underneath when swiping */}
+      <AnimatePresence>
+        {isSelected && swipeDirection && getAction(swipeDirection) && swipeProgress > 0.1 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ 
+              opacity: Math.min(swipeProgress * 2, 0.8),
+              scale: 0.95 + (swipeProgress * 0.05)
+            }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className={`
+              absolute inset-0 w-full h-full rounded-2xl overflow-hidden
+              ${getAction(swipeDirection)?.color || 'bg-blue-500'}
+              shadow-lg border-2 border-white/20 z-0
+            `}
+          >
+            <div className="h-full flex flex-col items-center justify-center text-white p-6">
+              <div className="text-4xl mb-4">
+                {getAction(swipeDirection)?.icon}
+              </div>
+              <h3 className="text-xl font-bold mb-2">
+                {getAction(swipeDirection)?.label}
+              </h3>
+              <div className="w-full bg-white/20 rounded-full h-2 mb-2">
+                <div 
+                  className="bg-white rounded-full h-2 transition-all duration-100"
+                  style={{ width: `${swipeProgress * 100}%` }}
+                />
+              </div>
+              <p className="text-sm opacity-80">
+                {swipeProgress < 0.5 ? 'Keep swiping...' : 'Release to execute!'}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div
-        drag
+        drag={isSelected}
         dragElastic={0.2}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         onClick={handleTap}
-        animate={isFlipped ? "back" : "front"}
-        variants={cardVariants}
-        className="w-full h-full cursor-grab active:cursor-grabbing"
+        animate={{
+          ...getCardTransform(),
+          ...(isFlipped ? cardVariants.back : cardVariants.front),
+          scale: isSwipeComplete ? 0.9 : 1,
+          opacity: isSwipeComplete ? 0.8 : 1
+        }}
+        className={`
+          w-full h-full relative z-10
+          ${isSelected ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
+        `}
         style={{ transformStyle: 'preserve-3d' }}
-        whileDrag={{ scale: 0.95 }}
+        transition={{ type: "spring", damping: 20, stiffness: 300 }}
       >
         {/* Front of card */}
         <div 
@@ -149,49 +235,43 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
         >
           {frontContent}
           
-          {/* Swipe direction indicators */}
-          <AnimatePresence>
-            {swipeDirection && getAction(swipeDirection) && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className="absolute z-10 bg-white/90 dark:bg-gray-900/90 rounded-full p-3 shadow-lg"
-                style={getSwipeIndicatorPosition()}
-              >
-                <div className="flex items-center gap-2">
-                  {getAction(swipeDirection)?.icon}
-                  <span className="text-sm font-medium">
-                    {getAction(swipeDirection)?.label}
-                  </span>
+          {/* Swipe indicators - only show on selected card */}
+          {isSelected && (
+            <div className="absolute inset-0 pointer-events-none">
+              {getAction('up') && (
+                <div className="absolute top-2 left-1/2 -translate-x-1/2">
+                  <div className={`
+                    w-8 h-1 rounded-full transition-all duration-200
+                    ${swipeDirection === 'up' ? 'bg-white' : 'bg-gray-300/50 dark:bg-gray-600/50'}
+                  `} />
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Available swipe indicators (subtle) */}
-          <div className="absolute inset-0 pointer-events-none">
-            {getAction('up') && (
-              <div className="absolute top-2 left-1/2 -translate-x-1/2">
-                <div className="w-8 h-1 bg-gray-300/50 dark:bg-gray-600/50 rounded-full" />
-              </div>
-            )}
-            {getAction('down') && (
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-                <div className="w-8 h-1 bg-gray-300/50 dark:bg-gray-600/50 rounded-full" />
-              </div>
-            )}
-            {getAction('left') && (
-              <div className="absolute left-2 top-1/2 -translate-y-1/2">
-                <div className="w-1 h-8 bg-gray-300/50 dark:bg-gray-600/50 rounded-full" />
-              </div>
-            )}
-            {getAction('right') && (
-              <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                <div className="w-1 h-8 bg-gray-300/50 dark:bg-gray-600/50 rounded-full" />
-              </div>
-            )}
-          </div>
+              )}
+              {getAction('down') && (
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+                  <div className={`
+                    w-8 h-1 rounded-full transition-all duration-200
+                    ${swipeDirection === 'down' ? 'bg-white' : 'bg-gray-300/50 dark:bg-gray-600/50'}
+                  `} />
+                </div>
+              )}
+              {getAction('left') && (
+                <div className="absolute left-2 top-1/2 -translate-y-1/2">
+                  <div className={`
+                    w-1 h-8 rounded-full transition-all duration-200
+                    ${swipeDirection === 'left' ? 'bg-white' : 'bg-gray-300/50 dark:bg-gray-600/50'}
+                  `} />
+                </div>
+              )}
+              {getAction('right') && (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                  <div className={`
+                    w-1 h-8 rounded-full transition-all duration-200
+                    ${swipeDirection === 'right' ? 'bg-white' : 'bg-gray-300/50 dark:bg-gray-600/50'}
+                  `} />
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Back of card */}

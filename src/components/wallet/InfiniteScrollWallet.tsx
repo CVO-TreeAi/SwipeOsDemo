@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Theme } from '../cards/BaseCard/types';
-import { SwipeableCard } from '../cards/SwipeableCard';
+import { SwipeableCard, SwipeAction } from '../cards/SwipeableCard';
 
 export interface WalletCard {
   id: string;
@@ -8,6 +8,7 @@ export interface WalletCard {
   component: React.ReactNode;
   position: number;
   backContent?: React.ReactNode;
+  swipeActions?: SwipeAction[];
 }
 
 export interface WalletConfig {
@@ -206,9 +207,10 @@ export const InfiniteScrollWallet: React.FC<InfiniteScrollWalletProps> = ({
                         </div>
                       }
                       backContent={getDefaultBackContent(card, theme)}
-                      swipeActions={[]}
+                      swipeActions={card.swipeActions}
                       className="h-full w-full"
                       onSwipe={onCardSwipe}
+                      isSelected={selectedCard === actualIndex}
                     />
                     
                     {/* Selection Indicator */}
@@ -256,8 +258,31 @@ export const InfiniteScrollWallet: React.FC<InfiniteScrollWalletProps> = ({
       {/* Footer */}
       {showFooter && sortedCards[selectedCard] && (
         <div className="bg-black/20 backdrop-blur-sm border-t border-white/10 p-4">
-          <div className="max-w-2xl mx-auto text-center">
-            {footerContent(sortedCards[selectedCard])}
+          <div className="max-w-2xl mx-auto">
+            {/* Default footer content */}
+            <div className="text-center mb-4">
+              {footerContent(sortedCards[selectedCard])}
+            </div>
+            
+            {/* Swipe Actions Indicator */}
+            {sortedCards[selectedCard].swipeActions && sortedCards[selectedCard].swipeActions!.length > 0 && (
+              <div className="grid grid-cols-2 gap-2 max-w-sm mx-auto">
+                {sortedCards[selectedCard].swipeActions!.map((action) => (
+                  <div
+                    key={action.direction}
+                    className="flex items-center gap-2 text-white/80 text-xs bg-white/10 rounded-lg p-2"
+                  >
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20">
+                      {action.direction === 'up' && '↑'}
+                      {action.direction === 'down' && '↓'}
+                      {action.direction === 'left' && '←'}
+                      {action.direction === 'right' && '→'}
+                    </div>
+                    <span className="truncate">{action.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
