@@ -1,21 +1,37 @@
 import { createClient } from '@supabase/supabase-js';
 
-// These would normally come from environment variables
-// For demo purposes, we'll use placeholder values
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key';
+// Client-side Supabase instance (limited privileges)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables. Check .env.local file.');
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// For server-side operations with elevated privileges
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5eG5ucmR5aGZobGtrbGtwenJwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODI1OTcxOCwiZXhwIjoyMDYzODM1NzE4fQ.YN1xmHKjsij9_2c3-j7aqNe4kFW5hgUIm0m-uH-jO2E';
+// Server-side admin client (only available in API routes)
+let supabaseAdmin: ReturnType<typeof createClient> | null = null;
 
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+if (process.env.SUPABASE_SERVICE_KEY) {
+  supabaseAdmin = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+}
+
+// Helper to ensure admin client is only used server-side
+export const getAdminClient = () => {
+  if (typeof window !== 'undefined') {
+    throw new Error('Admin client cannot be used in browser');
   }
-});
+  if (!supabaseAdmin) {
+    throw new Error('Admin client not initialized. Check SUPABASE_SERVICE_KEY environment variable.');
+  }
+  return supabaseAdmin;
+};
 
 // Database types for TypeScript
 export interface Database {
