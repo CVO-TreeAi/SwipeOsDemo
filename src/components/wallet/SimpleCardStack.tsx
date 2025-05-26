@@ -144,8 +144,8 @@ export const SimpleCardStack: React.FC<SimpleCardStackProps> = ({
   const handleScroll = () => {
     if (scrollContainerRef.current && !isScrollingRef.current) {
       const container = scrollContainerRef.current;
-      const cardHeight = 240; // Fixed card height like template
-      const gap = 24; // Gap between cards
+      const cardHeight = 320; // Updated card height
+      const gap = 32; // Updated gap between cards
       const scrollTop = container.scrollTop;
       const centerIndex = Math.round(scrollTop / (cardHeight + gap));
       
@@ -178,8 +178,8 @@ export const SimpleCardStack: React.FC<SimpleCardStackProps> = ({
     const container = scrollContainerRef.current;
     if (container && totalCards > 0) {
       // Start in the middle set of cards
-      const cardHeight = 240;
-      const gap = 24;
+      const cardHeight = 320;
+      const gap = 32;
       container.scrollTop = totalCards * (cardHeight + gap);
       
       container.addEventListener('scroll', handleScroll);
@@ -196,21 +196,21 @@ export const SimpleCardStack: React.FC<SimpleCardStackProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">Digital Wallet</h1>
-          <p className="text-gray-300 text-lg">
-            {selectedCard + 1} of {totalCards} • Scroll through your cards • Double-tap to flip
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
+      {/* Header */}
+      <div className="text-center py-6 px-6">
+        <h1 className="text-4xl font-bold text-white mb-4">Digital Wallet</h1>
+        <p className="text-gray-300 text-lg">
+          {selectedCard + 1} of {totalCards} • Scroll through your cards • Double-tap to flip
+        </p>
+      </div>
 
-        {/* Scrollable Cards Container */}
-        <div className="relative flex justify-center">
+      {/* Main Content Area - Cards */}
+      <div className="flex-1 flex items-center justify-center px-6">
+        <div className="relative w-full max-w-2xl">
           <div 
             ref={scrollContainerRef}
-            className="h-96 overflow-y-auto scrollbar-hide space-y-6 px-4 py-8"
+            className="h-[70vh] overflow-y-auto scrollbar-hide space-y-8 px-4 py-8"
             style={{ 
               scrollSnapType: 'y mandatory',
               scrollbarWidth: 'none',
@@ -227,7 +227,7 @@ export const SimpleCardStack: React.FC<SimpleCardStackProps> = ({
                 >
                   <div
                     className={`
-                      w-80 h-60 transition-all duration-300 transform cursor-pointer
+                      w-[90vw] max-w-md h-80 transition-all duration-300 transform cursor-pointer
                       ${selectedCard === actualIndex 
                         ? 'scale-105 shadow-2xl z-20' 
                         : 'hover:scale-102 shadow-lg'
@@ -282,8 +282,8 @@ export const SimpleCardStack: React.FC<SimpleCardStackProps> = ({
                 onClick={() => {
                   setSelectedCard(index);
                   if (scrollContainerRef.current) {
-                    const cardHeight = 240;
-                    const gap = 24;
+                    const cardHeight = 320; // Updated for new card height
+                    const gap = 32; // Updated for new gap
                     scrollContainerRef.current.scrollTo({
                       top: (totalCards + index) * (cardHeight + gap),
                       behavior: 'smooth'
@@ -295,10 +295,12 @@ export const SimpleCardStack: React.FC<SimpleCardStackProps> = ({
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Selected Card Info */}
-        <div className="text-center mt-8">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 max-w-sm mx-auto border border-white/20">
+      {/* Footer - Selected Card Info */}
+      <div className="bg-black/20 backdrop-blur-sm border-t border-white/10 p-4">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
             <h3 className="text-white text-sm font-semibold mb-1">Selected Card</h3>
             <p className="text-gray-300 text-xs">{sortedCards[selectedCard]?.type}</p>
           </div>
