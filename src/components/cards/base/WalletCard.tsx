@@ -24,28 +24,26 @@ export const WalletCard = forwardRef<HTMLDivElement, WalletCardProps>(({
   isActive,
   children,
   className = '',
-  cardHeight = 200,
+  cardHeight = 560,
   ...motionProps
 }, ref) => {
-  const CARD_OFFSET = 15; // Vertical offset between cards
-  const SCALE_FACTOR = 0.05; // How much cards scale down
-  const DRAG_THRESHOLD = 100;
+  const CARD_OFFSET = 80;
+  const SCALE_FACTOR = 0.03;
+  const DRAG_THRESHOLD = 150;
 
-  // Calculate position based on index
-  const yOffset = index * CARD_OFFSET;
-  const scale = 1 - (index * SCALE_FACTOR);
+  const yOffset = isActive ? 0 : index * CARD_OFFSET;
+  const scale = isActive ? 1 : 1 - (index * SCALE_FACTOR);
   const zIndex = totalCards - index;
+  
+  const rotation = isActive ? 0 : index * 1.5;
 
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const { offset, velocity } = info;
     
-    // Vertical swipe detection
     if (Math.abs(offset.y) > DRAG_THRESHOLD || Math.abs(velocity.y) > 500) {
       if (offset.y < 0) {
-        // Swiped up - dismiss card
         onSwipe?.('up');
       } else {
-        // Swiped down - could be used for refresh or other action
         onSwipe?.('down');
       }
     }
@@ -56,50 +54,79 @@ export const WalletCard = forwardRef<HTMLDivElement, WalletCardProps>(({
   return (
     <motion.div
       ref={ref}
-      className={`absolute w-[300px] h-[${cardHeight}px] cursor-grab active:cursor-grabbing ${className}`}
+      className={`absolute w-[calc(100vw-2rem)] max-w-[398px] h-[${cardHeight}px] cursor-grab active:cursor-grabbing ${className}`}
       initial={false}
       animate={{
         y: yOffset,
         scale,
-        rotateX: index * -2, // Slight 3D tilt
+        rotateZ: rotation,
+        rotateX: isActive ? 0 : -10,
       }}
       style={{
-        zIndex,
+        zIndex: isActive ? 100 : zIndex,
         transformOrigin: 'center bottom',
         transformStyle: 'preserve-3d',
+        transformPerspective: 1000,
       }}
       drag={isActive ? "y" : false}
-      dragConstraints={{ top: -200, bottom: 200 }}
-      dragElastic={0.2}
+      dragConstraints={{ top: -300, bottom: 300 }}
+      dragElastic={0.3}
       onDragEnd={handleDragEnd}
       whileDrag={{
-        scale: 1.05,
+        scale: 1.02,
+        rotateZ: 0,
         rotateX: 0,
-        zIndex: totalCards + 1,
+        zIndex: 101,
+        transition: {
+          duration: 0.2,
+        }
       }}
+      whileHover={!isActive ? {
+        y: yOffset - 10,
+        scale: scale + 0.02,
+        transition: {
+          duration: 0.2,
+        }
+      } : undefined}
       transition={{
         type: "spring",
         stiffness: 300,
-        damping: 30,
+        damping: 25,
+        mass: 0.8,
       }}
       {...motionProps}
     >
       <div
         className={`
-          w-full h-full rounded-[1.5rem] shadow-2xl overflow-hidden
-          ${theme === 'dark' 
-            ? 'bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700' 
-            : 'bg-gradient-to-br from-white to-gray-50 border border-gray-200'
+          w-full h-full rounded-[2rem] overflow-hidden
+          ${isActive 
+            ? 'shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]' 
+            : 'shadow-[0_10px_40px_-15px_rgba(0,0,0,0.3)]'
           }
-          ${isActive ? 'shadow-2xl' : 'shadow-lg'}
           transition-all duration-300
+          ${theme === 'dark' 
+            ? 'bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50' 
+            : 'bg-gradient-to-br from-white to-gray-50 border border-gray-200/50'
+          }
         `}
         style={{
           backfaceVisibility: 'hidden',
-          transform: 'translateZ(0)', // Hardware acceleration
+          transform: 'translateZ(0)',
+          willChange: 'transform',
         }}
       >
-        {children}
+        {!isActive && (
+          <div 
+            className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-10"
+            style={{
+              backdropFilter: 'blur(0.5px)',
+            }}
+          />
+        )}
+        
+        <div className={`relative w-full h-full ${!isActive ? 'scale-[0.98]' : ''}`}>
+          {children}
+        </div>
       </div>
     </motion.div>
   );
