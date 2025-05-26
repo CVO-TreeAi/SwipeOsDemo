@@ -2,12 +2,12 @@ import React, { forwardRef } from 'react';
 import { motion, HTMLMotionProps, PanInfo } from 'framer-motion';
 import { SwipeDirection, Theme } from '../BaseCard/types';
 
-interface WalletCardProps extends HTMLMotionProps<"div"> {
+interface WalletCardProps extends Omit<HTMLMotionProps<"div">, 'onDragEnd'> {
   index: number;
   totalCards: number;
   theme: Theme;
   onSwipe?: (direction: SwipeDirection) => void;
-  onDragEnd?: (offset: number) => void;
+  onDragComplete?: (offset: number) => void;
   onTap?: () => void;
   isActive: boolean;
   children: React.ReactNode;
@@ -20,7 +20,7 @@ export const WalletCard = forwardRef<HTMLDivElement, WalletCardProps>(({
   totalCards,
   theme,
   onSwipe,
-  onDragEnd,
+  onDragComplete,
   onTap,
   isActive,
   children,
@@ -53,7 +53,7 @@ export const WalletCard = forwardRef<HTMLDivElement, WalletCardProps>(({
       }
     }
     
-    onDragEnd?.(offset.y);
+    onDragComplete?.(offset.y);
   };
 
   const handleTap = () => {

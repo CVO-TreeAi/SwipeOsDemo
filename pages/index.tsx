@@ -1,298 +1,332 @@
-import React, { useState, useCallback } from 'react';
-import { GetServerSideProps } from 'next';
-import dynamic from 'next/dynamic';
-import { motion, AnimatePresence } from 'framer-motion';
-import { SwipeDirection, Theme } from '../src/components/cards/BaseCard/types';
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import { InfiniteScrollWallet, WalletCard, WalletConfig } from '../src/components/wallet/InfiniteScrollWallet';
+import { ProfileCard } from '../src/components/cards/ProfileCard';
+import { AiAssistantCard } from '../src/components/cards/AiAssistantCard';
+import { BusinessIdCard } from '../src/components/cards/BusinessIdCard';
+import { SettingsCard } from '../src/components/cards/SettingsCard';
+import { Theme } from '../src/components/cards/BaseCard/types';
+import { SwipeAction } from '../src/components/cards/SwipeableCard';
+import {
+  Edit,
+  BarChart3,
+  Users,
+  Share2,
+  MessageSquare,
+  History,
+  Settings,
+  HelpCircle,
+  Phone,
+  Mail,
+  Eye,
+  UserPlus,
+  Save,
+  RotateCcw,
+  Download,
+  Upload
+} from 'lucide-react';
 
-// Dynamic imports for cards
-const ProfileCard = dynamic(() => import('../src/components/cards/ProfileCard'), { ssr: false });
-const BusinessIdCard = dynamic(() => import('../src/components/cards/BusinessIdCard'), { ssr: false });
-const SettingsCard = dynamic(() => import('../src/components/cards/SettingsCard'), { ssr: false });
-const AiAssistantCard = dynamic(() => import('../src/components/cards/AiAssistantCard'), { ssr: false });
+// Import popup components
+import { EditProfilePopup, ProfileAnalyticsPopup, ProfileUsersPopup, ProfileSharePopup } from '../src/components/cards/ProfileCard/ProfilePopups';
+import { NewConversationPopup, ViewHistoryPopup, AiSettingsPopup, QuickAskPopup } from '../src/components/cards/AiAssistantCard/AiPopups';
+import { CallContactPopup, SendEmailPopup, ViewDetailsPopup, AddToCrmPopup } from '../src/components/cards/BusinessIdCard/BusinessPopups';
+import { BackupSettingsPopup, ResetToDefaultPopup, ImportConfigPopup, ExportConfigPopup } from '../src/components/cards/SettingsCard/SettingsPopups';
 
-interface DeckData {
-  profile: {
-    userName: string;
-    avatarUrl: string;
-    companyName: string;
-  };
-  business: {
-    companyLogoUrl: string;
-    contactEmail: string;
-    phone: string;
-  };
-  settings: Record<string, boolean>;
-  aiAssistant: {
-    unreadCount: number;
-  };
-}
+export default function HomePage() {
+  const [theme, setTheme] = useState<Theme>('dark');
+  const [swipedCards, setSwipedCards] = useState<Set<string>>(new Set());
+  const [activePopup, setActivePopup] = useState<string | null>(null);
+  const router = useRouter();
 
-interface DeckPageProps {
-  data: DeckData;
-}
-
-const DeckPage: React.FC<DeckPageProps> = ({ data }) => {
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [theme, setTheme] = useState<Theme>('light');
-  const [settings, setSettings] = useState(data.settings);
-
-  const handleSwipe = useCallback((direction: SwipeDirection) => {
-    console.log(`Swiped ${direction} on card ${currentCardIndex}`);
+  const handleCardSwipe = (cardId: string, direction: any) => {
+    console.log(`Card ${cardId} swiped ${direction}`);
     
-    switch (direction) {
-      case 'left':
-        setCurrentCardIndex((prev) => (prev + 1) % 4);
-        break;
-      case 'right':
-        setCurrentCardIndex((prev) => (prev - 1 + 4) % 4);
-        break;
-      case 'up':
-        // Could trigger card-specific action
-        break;
-      case 'down':
-        // Could trigger card-specific action
-        break;
-    }
-  }, [currentCardIndex]);
-
-  const handleSettingToggle = useCallback(async (key: string) => {
-    const newValue = !settings[key];
+    // Temporarily hide the card to simulate "swipe out"
+    setSwipedCards(prev => new Set(prev).add(cardId));
     
-    // Optimistically update the UI
-    setSettings(prev => ({
-      ...prev,
-      [key]: newValue
-    }));
-
-    try {
-      // Get the first user ID for demo purposes
-      const response = await fetch('/api/user/dashboard-data');
-      const result = await response.json();
-      
-      // In a real app, you'd get the user ID from authentication
-      const userId = 'demo-user-id'; // This would come from auth context
-      
-      // Update the setting in the database
-      const updateResponse = await fetch('/api/user/update-settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          settingKey: key,
-          settingValue: newValue
-        })
+    // Bring the card back after a short delay
+    setTimeout(() => {
+      setSwipedCards(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(cardId);
+        return newSet;
       });
-
-      if (!updateResponse.ok) {
-        // Revert the optimistic update if the API call fails
-        setSettings(prev => ({
-          ...prev,
-          [key]: !newValue
-        }));
-        console.error('Failed to update setting');
-      }
-    } catch (error) {
-      // Revert the optimistic update if there's an error
-      setSettings(prev => ({
-        ...prev,
-        [key]: !newValue
-      }));
-      console.error('Error updating setting:', error);
-    }
-  }, [settings]);
-
-  const handleOpenChat = useCallback(() => {
-    console.log('Opening AI chat...');
-    // Implement chat opening logic
-  }, []);
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    }, 800); // Card returns after 800ms
   };
 
-  const cards = [
+  const handleCardSelect = (card: WalletCard, index: number) => {
+    console.log(`Selected card: ${card.type} at index ${index}`);
+  };
+
+  // Define swipe actions for each card type
+  const profileSwipeActions: SwipeAction[] = [
     {
-      id: 'profile',
-      position: 0,
-      component: (
-        <ProfileCard
-          position={0}
-          theme={theme}
-          onSwipe={handleSwipe}
-          userName={data.profile.userName}
-          avatarUrl={data.profile.avatarUrl}
-          companyName={data.profile.companyName}
-        />
-      )
+      direction: 'up',
+      label: 'Edit Profile',
+      icon: <Edit size={24} />,
+      color: 'bg-blue-500',
+      action: () => setActivePopup('edit-profile')
     },
     {
-      id: 'business',
-      position: 1,
-      component: (
-        <BusinessIdCard
-          position={1}
-          theme={theme}
-          onSwipe={handleSwipe}
-          companyLogoUrl={data.business.companyLogoUrl}
-          contactEmail={data.business.contactEmail}
-          phone={data.business.phone}
-        />
-      )
+      direction: 'down',
+      label: 'View Analytics',
+      icon: <BarChart3 size={24} />,
+      color: 'bg-green-500',
+      action: () => setActivePopup('view-analytics')
     },
     {
-      id: 'settings',
-      position: 2,
-      component: (
-        <SettingsCard
-          position={2}
-          theme={theme}
-          onSwipe={handleSwipe}
-          settings={settings}
-          onToggle={handleSettingToggle}
-        />
-      )
+      direction: 'left',
+      label: 'Previous User',
+      icon: <Users size={24} />,
+      color: 'bg-orange-500',
+      action: () => setActivePopup('previous-user')
     },
     {
-      id: 'ai-assistant',
-      position: 3,
-      component: (
-        <AiAssistantCard
-          position={3}
-          theme={theme}
-          onSwipe={handleSwipe}
-          unreadCount={data.aiAssistant.unreadCount}
-          onOpenChat={handleOpenChat}
-        />
-      )
+      direction: 'right',
+      label: 'Share Profile',
+      icon: <Share2 size={24} />,
+      color: 'bg-purple-500',
+      action: () => setActivePopup('share-profile')
     }
   ];
 
+  const aiSwipeActions: SwipeAction[] = [
+    {
+      direction: 'up',
+      label: 'New Conversation',
+      icon: <MessageSquare size={24} />,
+      color: 'bg-green-500',
+      action: () => setActivePopup('new-conversation')
+    },
+    {
+      direction: 'down',
+      label: 'View History',
+      icon: <History size={24} />,
+      color: 'bg-blue-500',
+      action: () => setActivePopup('view-history')
+    },
+    {
+      direction: 'left',
+      label: 'AI Settings',
+      icon: <Settings size={24} />,
+      color: 'bg-orange-500',
+      action: () => setActivePopup('ai-settings')
+    },
+    {
+      direction: 'right',
+      label: 'Quick Ask',
+      icon: <HelpCircle size={24} />,
+      color: 'bg-purple-500',
+      action: () => setActivePopup('quick-ask')
+    }
+  ];
+
+  const businessSwipeActions: SwipeAction[] = [
+    {
+      direction: 'up',
+      label: 'Call Contact',
+      icon: <Phone size={24} />,
+      color: 'bg-green-500',
+      action: () => setActivePopup('call-contact')
+    },
+    {
+      direction: 'down',
+      label: 'Send Email',
+      icon: <Mail size={24} />,
+      color: 'bg-blue-500',
+      action: () => setActivePopup('send-email')
+    },
+    {
+      direction: 'left',
+      label: 'View Details',
+      icon: <Eye size={24} />,
+      color: 'bg-orange-500',
+      action: () => setActivePopup('view-details')
+    },
+    {
+      direction: 'right',
+      label: 'Add to CRM',
+      icon: <UserPlus size={24} />,
+      color: 'bg-purple-500',
+      action: () => setActivePopup('add-to-crm')
+    }
+  ];
+
+  const settingsSwipeActions: SwipeAction[] = [
+    {
+      direction: 'up',
+      label: 'Backup Settings',
+      icon: <Save size={24} />,
+      color: 'bg-green-500',
+      action: () => setActivePopup('backup-settings')
+    },
+    {
+      direction: 'down',
+      label: 'Reset to Default',
+      icon: <RotateCcw size={24} />,
+      color: 'bg-red-500',
+      action: () => setActivePopup('reset-to-default')
+    },
+    {
+      direction: 'left',
+      label: 'Import Config',
+      icon: <Upload size={24} />,
+      color: 'bg-orange-500',
+      action: () => setActivePopup('import-config')
+    },
+    {
+      direction: 'right',
+      label: 'Export Config',
+      icon: <Download size={24} />,
+      color: 'bg-purple-500',
+      action: () => setActivePopup('export-config')
+    }
+  ];
+
+  // Initialize demo cards with swipe actions
+  const cards: WalletCard[] = [
+    {
+      id: 'profile-1',
+      type: 'profile',
+      position: 0,
+      component: (
+        <div className={`transition-opacity duration-300 ${swipedCards.has('profile-1') ? 'opacity-30' : 'opacity-100'}`}>
+          <ProfileCard
+            userName="John Doe"
+            avatarUrl="/api/placeholder/150/150"
+            companyName="TreeAI"
+            theme={theme}
+          />
+        </div>
+      ),
+      swipeActions: profileSwipeActions,
+    },
+    {
+      id: 'ai-1',
+      type: 'ai_assistant',
+      position: 1,
+      component: (
+        <div className={`transition-opacity duration-300 ${swipedCards.has('ai-1') ? 'opacity-30' : 'opacity-100'}`}>
+          <AiAssistantCard
+            unreadCount={3}
+            theme={theme}
+          />
+        </div>
+      ),
+      swipeActions: aiSwipeActions,
+    },
+    {
+      id: 'business-1',
+      type: 'business_id',
+      position: 2,
+      component: (
+        <div className={`transition-opacity duration-300 ${swipedCards.has('business-1') ? 'opacity-30' : 'opacity-100'}`}>
+          <BusinessIdCard
+            companyLogoUrl="/api/placeholder/100/100"
+            contactEmail="contact@treeai.com"
+            phone="+1 (555) 123-4567"
+            theme={theme}
+          />
+        </div>
+      ),
+      swipeActions: businessSwipeActions,
+    },
+    {
+      id: 'settings-1',
+      type: 'settings',
+      position: 3,
+      component: (
+        <div className={`transition-opacity duration-300 ${swipedCards.has('settings-1') ? 'opacity-30' : 'opacity-100'}`}>
+          <SettingsCard
+            settings={{
+              notifications: true,
+              darkMode: theme === 'dark',
+              autoSync: true,
+            }}
+            onToggle={(key) => {
+              if (key === 'darkMode') {
+                setTheme(theme === 'dark' ? 'light' : 'dark');
+              }
+            }}
+            theme={theme}
+          />
+        </div>
+      ),
+      swipeActions: settingsSwipeActions,
+    },
+  ];
+
+  // Configure the wallet
+  const config: WalletConfig = {
+    title: 'SwipeOS Digital Wallet',
+    subtitle: `${cards.length} cards • Scroll to navigate • Swipe center card for actions`,
+    cardHeight: 320,
+    cardGap: 32,
+    maxWidth: 'max-w-md',
+    showScrollIndicators: true,
+    showFooter: true,
+  };
+
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'
-    }`}>
-      {/* Header */}
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              SwipeOS Wallet
-            </h1>
-            <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              First Login Setup
-            </p>
+    <div className="relative w-full h-screen overflow-hidden">
+      <InfiniteScrollWallet
+        cards={cards}
+        config={config}
+        theme={theme}
+        onCardSwipe={handleCardSwipe}
+        onCardSelect={handleCardSelect}
+      />
+      
+      {/* Version indicator */}
+      <div className="absolute top-14 right-6 z-50">
+        <div className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
+          SwipeOS
+        </div>
+      </div>
+
+      {/* Popup Modal Overlay */}
+      {activePopup && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className={`w-full max-w-md h-[80vh] rounded-2xl shadow-2xl overflow-hidden ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+            {/* Profile Card Popups */}
+            {activePopup === 'edit-profile' && (
+              <EditProfilePopup 
+                theme={theme} 
+                profileData={{
+                  userName: "John Doe",
+                  companyName: "TreeAI",
+                  avatarUrl: "/api/placeholder/150/150",
+                  email: "john@treeai.com",
+                  phone: "+1 (555) 123-4567"
+                }}
+                onUpdate={(data) => console.log('Profile updated:', data)}
+                onClose={() => setActivePopup(null)} 
+              />
+            )}
+            {activePopup === 'view-analytics' && <ProfileAnalyticsPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'previous-user' && <ProfileUsersPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'share-profile' && <ProfileSharePopup theme={theme} onClose={() => setActivePopup(null)} />}
+            
+            {/* AI Assistant Card Popups */}
+            {activePopup === 'new-conversation' && <NewConversationPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'view-history' && <ViewHistoryPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'ai-settings' && <AiSettingsPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'quick-ask' && <QuickAskPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            
+            {/* Business Card Popups */}
+            {activePopup === 'call-contact' && <CallContactPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'send-email' && <SendEmailPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'view-details' && <ViewDetailsPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'add-to-crm' && <AddToCrmPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            
+            {/* Settings Card Popups */}
+            {activePopup === 'backup-settings' && <BackupSettingsPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'reset-to-default' && <ResetToDefaultPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'import-config' && <ImportConfigPopup theme={theme} onClose={() => setActivePopup(null)} />}
+            {activePopup === 'export-config' && <ExportConfigPopup theme={theme} onClose={() => setActivePopup(null)} />}
           </div>
-          <button
-            onClick={toggleTheme}
-            className={`p-2 rounded-lg transition-colors ${
-              theme === 'dark' 
-                ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
-                : 'bg-white text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
         </div>
-
-        {/* Card Indicators */}
-        <div className="flex justify-center space-x-2 mb-8">
-          {cards.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentCardIndex(index)}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                index === currentCardIndex 
-                  ? 'bg-blue-500' 
-                  : theme === 'dark' ? 'bg-gray-600' : 'bg-gray-300'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Card Container */}
-      <div className="flex justify-center px-6">
-        <div className="relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentCardIndex}
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              transition={{ duration: 0.3 }}
-            >
-              {cards[currentCardIndex].component}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* Instructions */}
-      <div className="p-6 mt-8">
-        <div className={`text-center text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-          <p>Swipe left/right or use arrow keys to navigate</p>
-          <p className="mt-1">Swipe up/down for card actions</p>
-        </div>
-      </div>
+      )}
     </div>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<DeckPageProps> = async (context) => {
-  try {
-    // Fetch data from our API
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'http://localhost:3002';
-    
-    const response = await fetch(`${baseUrl}/api/user/dashboard-data`);
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch dashboard data');
-    }
-    
-    const result = await response.json();
-    
-    return {
-      props: {
-        data: result.data
-      }
-    };
-  } catch (error) {
-    console.error('Error fetching dashboard data:', error);
-    
-    // Fallback to stub data if API fails
-    const data: DeckData = {
-      profile: {
-        userName: 'John Doe',
-        avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face',
-        companyName: 'TreeAi Services'
-      },
-      business: {
-        companyLogoUrl: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=48&h=48&fit=crop',
-        contactEmail: 'contact@treeai.com',
-        phone: '+1 (555) 123-4567'
-      },
-      settings: {
-        notifications: true,
-        darkMode: false,
-        autoSync: true,
-        locationServices: false,
-        analytics: true
-      },
-      aiAssistant: {
-        unreadCount: 3
-      }
-    };
-
-    return {
-      props: {
-        data
-      }
-    };
-  }
-};
-
-export default DeckPage;
+} 

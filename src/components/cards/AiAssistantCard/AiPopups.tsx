@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Theme } from '../BaseCard/types';
-import { X, MessageSquare, History, Settings, HelpCircle, Send, Bot, User, Trash2, Star } from 'lucide-react';
+import { X, MessageSquare, History, Settings, HelpCircle, Send, Bot, User, Trash2, Star, BarChart3 } from 'lucide-react';
 
 interface AiPopupProps {
   theme: Theme;

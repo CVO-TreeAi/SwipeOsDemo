@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { Theme } from '../BaseCard/types';
-import { SwipeAction, V4Card } from '../../../../pages/v4';
+import { SwipeAction } from '../SwipeableCard';
+import { WalletCard } from '../../wallet/InfiniteScrollWallet';
 import { 
   ChevronUp, 
   ChevronDown, 
@@ -12,7 +13,7 @@ import {
 } from 'lucide-react';
 
 interface SwipeWizardCardProps {
-  card: V4Card;
+  card: WalletCard;
   theme: Theme;
   onSwipeAction: (action: SwipeAction) => Promise<void>;
   swipeProgress: {
@@ -47,7 +48,8 @@ export const SwipeWizardCard: React.FC<SwipeWizardCardProps> = ({
   
   const rotateX = useTransform(y, [-200, 0, 200], [15, 0, -15]);
   const rotateY = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
-  const scale = useTransform([x, y], ([latestX, latestY]) => {
+  const scale = useTransform([x, y], (values: number[]) => {
+    const [latestX, latestY] = values;
     const distance = Math.sqrt(latestX * latestX + latestY * latestY);
     return Math.max(0.9, 1 - distance / 1000);
   });
@@ -79,7 +81,7 @@ export const SwipeWizardCard: React.FC<SwipeWizardCardProps> = ({
   };
 
   const getActionForDirection = (direction: 'up' | 'down' | 'left' | 'right'): SwipeAction | null => {
-    return card.actions.find(action => action.direction === direction) || null;
+    return card.swipeActions?.find(action => action.direction === direction) || null;
   };
 
   const handleDragStart = () => {
@@ -186,7 +188,7 @@ export const SwipeWizardCard: React.FC<SwipeWizardCardProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isSwipeInProgress, card.actions, onSwipeAction]);
+      }, [isSwipeInProgress, card.swipeActions, onSwipeAction]);
 
   const getSwipeIndicatorStyle = (direction: 'up' | 'down' | 'left' | 'right') => {
     const action = getActionForDirection(direction);
@@ -197,7 +199,7 @@ export const SwipeWizardCard: React.FC<SwipeWizardCardProps> = ({
     
     return {
       opacity,
-      backgroundColor: isActive ? action.color.replace('bg-', '') : 'rgba(255, 255, 255, 0.1)',
+      backgroundColor: isActive ? (action.color?.replace('bg-', '') || '#3b82f6') : 'rgba(255, 255, 255, 0.1)',
     };
   };
 

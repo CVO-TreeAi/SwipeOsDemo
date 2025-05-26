@@ -62,14 +62,18 @@ export default function DeckManager({ theme, onThemeToggle }: DeckManagerProps) 
 
   const handleSettingsToggle = useCallback((key: string) => {
     setSettings(prev => {
-      const newSettings = { ...prev, [key]: !prev[key] };
-      
-      // Handle special settings
-      if (key === 'darkMode') {
-        onThemeToggle();
+      // Type guard to ensure key exists in settings
+      if (key in prev) {
+        const newSettings = { ...prev, [key as keyof typeof prev]: !prev[key as keyof typeof prev] };
+        
+        // Handle special settings
+        if (key === 'darkMode') {
+          onThemeToggle();
+        }
+        
+        return newSettings;
       }
-      
-      return newSettings;
+      return prev;
     });
   }, [onThemeToggle]);
 

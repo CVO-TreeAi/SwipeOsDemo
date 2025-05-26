@@ -31,7 +31,7 @@ export const useGestures = (
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isLongPressRef = useRef(false);
 
-  const handleTouchStart = useCallback((event: TouchEvent) => {
+  const handleTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     const touch = event.touches[0];
     touchStartRef.current = {
       x: touch.clientX,
@@ -53,7 +53,7 @@ export const useGestures = (
     }
   }, [callbacks.onLongPress, longPressDelay, preventScroll]);
 
-  const handleTouchMove = useCallback((event: TouchEvent) => {
+  const handleTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     // Cancel long press if user moves finger
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
@@ -65,7 +65,7 @@ export const useGestures = (
     }
   }, [preventScroll]);
 
-  const handleTouchEnd = useCallback((event: TouchEvent) => {
+  const handleTouchEnd = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     // Clear long press timer
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);

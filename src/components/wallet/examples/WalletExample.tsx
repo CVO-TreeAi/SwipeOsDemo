@@ -106,28 +106,49 @@ export const WalletExample: React.FC = () => {
       id: 'profile',
       type: 'profile',
       position: 0,
-      component: <ProfileCard theme="dark" />,
+      component: <ProfileCard 
+        userName="John Doe" 
+        avatarUrl="/api/placeholder/150/150" 
+        companyName="TreeAI" 
+        theme="dark" 
+      />,
       backContent: getCustomBackContent('profile', 'dark'),
     },
     {
       id: 'ai_assistant',
       type: 'ai_assistant',
       position: 1,
-      component: <AiAssistantCard theme="dark" />,
+      component: <AiAssistantCard 
+        unreadCount={3} 
+        theme="dark" 
+      />,
       backContent: getCustomBackContent('ai_assistant', 'dark'),
     },
     {
       id: 'business_id',
       type: 'business_id',
       position: 2,
-      component: <BusinessIdCard theme="dark" />,
+      component: <BusinessIdCard 
+        companyLogoUrl="/api/placeholder/100/100"
+        contactEmail="contact@treeai.com"
+        phone="+1 (555) 123-4567"
+        theme="dark" 
+      />,
       backContent: getCustomBackContent('business_id', 'dark'),
     },
     {
       id: 'settings',
       type: 'settings',
       position: 3,
-      component: <SettingsCard theme="dark" />,
+      component: <SettingsCard 
+        settings={{
+          notifications: true,
+          darkMode: true,
+          autoSync: true,
+        }}
+        onToggle={(key) => console.log('Toggle:', key)}
+        theme="dark" 
+      />,
       backContent: getCustomBackContent('settings', 'dark'),
     },
   ];

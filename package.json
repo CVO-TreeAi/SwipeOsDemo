@@ -1,6 +1,7 @@
 {
   "name": "swipe-os",
-  "version": "3.0.0-alpha",
+  "version": "1.0.0",
+  "description": "SwipeOS - Mobile-first digital wallet with card-based interface and popup functionality",
   "private": true,
   "scripts": {
     "dev": "next dev",

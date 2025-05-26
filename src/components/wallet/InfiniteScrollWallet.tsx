@@ -290,5 +290,4 @@ export const InfiniteScrollWallet: React.FC<InfiniteScrollWalletProps> = ({
   );
 };
 
-// Export types for easy importing
-export type { WalletCard, WalletConfig }; 
+ 

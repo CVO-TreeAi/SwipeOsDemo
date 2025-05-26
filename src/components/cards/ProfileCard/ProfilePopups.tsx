@@ -45,8 +45,15 @@ export const EditProfilePopup: React.FC<ProfileEditPopupProps> = ({ theme, profi
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Transform form data to match Supabase Profile interface
+      const profileUpdate = {
+        user_name: formData.userName,
+        company_name: formData.companyName,
+        avatar_url: formData.avatarUrl
+      };
+      
       // Save to Supabase
-      await supabaseMCP.updateProfile('current-user-id', formData);
+      await supabaseMCP.updateProfile('current-user-id', profileUpdate);
       onUpdate(formData);
       setIsSaving(false);
     } catch (error) {
@@ -191,7 +198,7 @@ export const EditProfilePopup: React.FC<ProfileEditPopupProps> = ({ theme, profi
   );
 };
 
-export const ProfileAnalyticsPopup: React.FC<{ theme: Theme }> = ({ theme }) => {
+export const ProfileAnalyticsPopup: React.FC<{ theme: Theme; onClose: () => void }> = ({ theme, onClose }) => {
   const isDark = theme === 'dark';
 
   const stats = [
@@ -202,8 +209,18 @@ export const ProfileAnalyticsPopup: React.FC<{ theme: Theme }> = ({ theme }) => 
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Stats Grid */}
+    <div className={`p-6 h-full ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold flex items-center gap-2">
+          <BarChart3 className="text-blue-500" size={24} />
+          Analytics
+        </h2>
+        <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">
+          <X size={20} />
+        </button>
+      </div>
+      <div className="space-y-6">
+        {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {stats.map((stat, index) => (
           <div
@@ -260,11 +277,12 @@ export const ProfileAnalyticsPopup: React.FC<{ theme: Theme }> = ({ theme }) => 
           ))}
         </div>
       </div>
+      </div>
     </div>
   );
 };
 
-export const ProfileUsersPopup: React.FC<{ theme: Theme }> = ({ theme }) => {
+export const ProfileUsersPopup: React.FC<{ theme: Theme; onClose: () => void }> = ({ theme, onClose }) => {
   const isDark = theme === 'dark';
   const [currentUserIndex, setCurrentUserIndex] = useState(0);
 
@@ -276,8 +294,18 @@ export const ProfileUsersPopup: React.FC<{ theme: Theme }> = ({ theme }) => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Current User Display */}
+    <div className={`p-6 h-full ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold flex items-center gap-2">
+          <Users className="text-blue-500" size={24} />
+          Users
+        </h2>
+        <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">
+          <X size={20} />
+        </button>
+      </div>
+      <div className="space-y-6">
+        {/* Current User Display */}
       <div className={`
         p-6 rounded-xl border
         ${isDark 
@@ -368,11 +396,12 @@ export const ProfileUsersPopup: React.FC<{ theme: Theme }> = ({ theme }) => {
           ))}
         </div>
       </div>
+      </div>
     </div>
   );
 };
 
-export const ProfileSharePopup: React.FC<{ theme: Theme }> = ({ theme }) => {
+export const ProfileSharePopup: React.FC<{ theme: Theme; onClose: () => void }> = ({ theme, onClose }) => {
   const isDark = theme === 'dark';
   const [copied, setCopied] = useState(false);
 
@@ -392,8 +421,18 @@ export const ProfileSharePopup: React.FC<{ theme: Theme }> = ({ theme }) => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Share Link */}
+    <div className={`p-6 h-full ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`}>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold flex items-center gap-2">
+          <Share2 className="text-blue-500" size={24} />
+          Share Profile
+        </h2>
+        <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full">
+          <X size={20} />
+        </button>
+      </div>
+      <div className="space-y-6">
+        {/* Share Link */}
       <div>
         <h3 className={`text-lg font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
           Share Profile Link
@@ -477,6 +516,7 @@ export const ProfileSharePopup: React.FC<{ theme: Theme }> = ({ theme }) => {
         <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
           Scan to view profile
         </p>
+      </div>
       </div>
     </div>
   );
