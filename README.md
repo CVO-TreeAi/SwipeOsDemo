@@ -1,6 +1,6 @@
-# SwipeOS Wallet - First Login Deck
+# SwipeOS Wallet - TreeAI Edition
 
-A modern, swipe-based wallet interface built with Next.js, TypeScript, Tailwind CSS, and Framer Motion.
+A modern, swipe-based wallet interface built with Next.js, TypeScript, Tailwind CSS, and Framer Motion for TreeAI services.
 
 ## 🚀 Features
 
@@ -170,4 +170,4 @@ The application now includes full Supabase integration:
 
 ---
 
-Built with ❤️ for TreeAi Services 
+Built with ❤️ for TreeAi Services
