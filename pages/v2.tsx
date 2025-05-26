@@ -1,0 +1,189 @@
+import React, { useState, useEffect } from 'react';
+import type { NextPage } from 'next';
+import { motion } from 'framer-motion';
+import { WalletContainer } from '../src/components/wallet/WalletContainer';
+import { Theme } from '../src/components/cards/BaseCard/types';
+import { CardData } from '../src/components/wallet/CardStack';
+import { useWalletStore } from '../src/store/walletStore';
+
+// Import existing cards
+import { ProfileCard } from '../src/components/cards/ProfileCard';
+import { BusinessIdCard } from '../src/components/cards/BusinessIdCard';
+import { SettingsCard } from '../src/components/cards/SettingsCard';
+import { AiAssistantCard } from '../src/components/cards/AiAssistantCard';
+
+// Import new cards
+import { LoyaltyCard } from '../src/components/cards/digital/LoyaltyCard';
+import { GiftCard } from '../src/components/cards/digital/GiftCard';
+import { MembershipCard } from '../src/components/cards/digital/MembershipCard';
+
+const V2Page: NextPage = () => {
+  const [theme, setTheme] = useState<Theme>('dark');
+  const { cards, addCard } = useWalletStore();
+
+  // Sample data - in production this would come from Supabase
+  const sampleCards: CardData[] = [
+    {
+      id: '1',
+      type: 'profile',
+      position: 0,
+      component: (
+        <ProfileCard
+          theme={theme}
+          name="John Doe"
+          company="TreeAI Services"
+          avatarUrl="https://api.dicebear.com/7.x/avataaars/svg?seed=John"
+          completionPercentage={85}
+        />
+      ),
+    },
+    {
+      id: '2',
+      type: 'loyalty',
+      position: 1,
+      component: (
+        <LoyaltyCard
+          theme={theme}
+          storeName="Starbucks"
+          memberNumber="4532-1234-5678"
+          points={1250}
+          pointsToNextReward={1500}
+          barcode="123456789012"
+          backgroundColor="#00704A"
+        />
+      ),
+    },
+    {
+      id: '3',
+      type: 'gift_card',
+      position: 2,
+      component: (
+        <GiftCard
+          theme={theme}
+          storeName="Amazon"
+          balance={75.50}
+          originalAmount={100}
+          cardNumber="4532123456789012"
+          pin="1234"
+          expiryDate="12/2025"
+          backgroundColor="#FF9900"
+          patternType="geometric"
+        />
+      ),
+    },
+    {
+      id: '4',
+      type: 'membership',
+      position: 3,
+      component: (
+        <MembershipCard
+          theme={theme}
+          organizationName="Planet Fitness"
+          memberName="John Doe"
+          memberId="PF-2024-1234"
+          memberType="Premium"
+          validUntil="Dec 2024"
+          benefits={[
+            "Unlimited gym access",
+            "Free guest passes",
+            "HydroMassage",
+            "Tanning",
+            "Free T-shirt"
+          ]}
+          backgroundColor="#7B2FF7"
+        />
+      ),
+    },
+    {
+      id: '5',
+      type: 'business_id',
+      position: 4,
+      component: (
+        <BusinessIdCard
+          theme={theme}
+          companyName="TreeAI Services"
+          logoUrl="https://api.dicebear.com/7.x/identicon/svg?seed=TreeAI"
+          email="contact@treeai.com"
+          phone="+1 (555) 123-4567"
+        />
+      ),
+    },
+    {
+      id: '6',
+      type: 'settings',
+      position: 5,
+      component: (
+        <SettingsCard
+          theme={theme}
+          settings={{
+            notifications: true,
+            biometric: false,
+            autoSync: true,
+            offlineMode: false,
+          }}
+          onSettingChange={(key, value) => console.log(`${key}: ${value}`)}
+        />
+      ),
+    },
+    {
+      id: '7',
+      type: 'ai_assistant',
+      position: 6,
+      component: (
+        <AiAssistantCard
+          theme={theme}
+          unreadCount={3}
+          lastMessage="How can I help you today?"
+          onOpen={() => console.log('Opening AI chat')}
+        />
+      ),
+    },
+  ];
+
+  // Initialize with sample cards
+  useEffect(() => {
+    if (cards.length === 0) {
+      sampleCards.forEach(card => addCard(card));
+    }
+  }, []);
+
+  return (
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      {/* Theme Toggle */}
+      <motion.button
+        className={`fixed top-4 right-4 z-50 p-3 rounded-full shadow-lg ${
+          theme === 'dark' 
+            ? 'bg-gray-800 text-yellow-400' 
+            : 'bg-white text-gray-800'
+        }`}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      >
+        {theme === 'dark' ? (
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+          </svg>
+        ) : (
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+          </svg>
+        )}
+      </motion.button>
+
+      {/* Version Badge */}
+      <div className={`fixed top-4 left-4 z-50 px-3 py-1 rounded-full text-sm font-medium ${
+        theme === 'dark' 
+          ? 'bg-blue-900 text-blue-300' 
+          : 'bg-blue-100 text-blue-800'
+      }`}>
+        v2.0 - Vertical Stack
+      </div>
+
+      {/* Main Wallet Container */}
+      <WalletContainer theme={theme} userId="demo-user" />
+    </div>
+  );
+};
+
+export default V2Page; 
